@@ -53,11 +53,11 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
 
     private void Compose()
     {
-        ElementBounds statusBounds = ElementBounds.Fixed(0, 34, 620, 94);
-        ElementBounds labelBounds = ElementBounds.Fixed(0, 144, 160, 24);
-        ElementBounds fieldBounds = ElementBounds.Fixed(184, 140, 350, 30);
-        ElementBounds meterBounds = ElementBounds.Fixed(184, 186, 350, 18);
-        ElementBounds buttonRow = ElementBounds.Fixed(0, 292, 620, 34);
+        ElementBounds statusBounds = ElementBounds.Fixed(0, 34, 640, 92);
+        ElementBounds labelBounds = ElementBounds.Fixed(0, 146, 170, 24);
+        ElementBounds fieldBounds = ElementBounds.Fixed(188, 140, 376, 30);
+        ElementBounds meterBounds = ElementBounds.Fixed(188, 184, 376, 18);
+        ElementBounds buttonRow = ElementBounds.Fixed(0, 344, 640, 34);
         ElementBounds bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
         bgBounds.BothSizing = ElementSizing.FitToChildren;
         bgBounds.WithChildren(statusBounds, labelBounds, fieldBounds, meterBounds, buttonRow);
@@ -74,19 +74,19 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
             .AddDialogTitleBar("Discord Voice Setup", () => { })
             .BeginChildElements(bgBounds)
                 .AddDynamicText(StatusText(appText), CairoFont.WhiteSmallText(), statusBounds, "status")
-                .AddStaticText("microphone", CairoFont.WhiteSmallText(), labelBounds)
+                .AddStaticText("Microphone", CairoFont.WhiteSmallText(), labelBounds)
                 .AddDropDown(deviceIds, deviceNames, deviceIndex, OnMicrophoneChanged, fieldBounds, "microphone")
-                .AddStaticText("test", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 46))
+                .AddStaticText("Input Test", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 44))
                 .AddInset(meterBounds.ForkBoundingParent(2, 2, 2, 2), 2)
                 .AddDynamicCustomDraw(meterBounds, DrawInputLevel, "inputlevel")
-                .AddDynamicText("", CairoFont.WhiteSmallText(), fieldBounds.BelowCopy(0, 44), "leveltext")
-                .AddStaticText("talk type", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 92))
-                .AddDropDown(new[] { VoiceTalkModes.PushToTalk, VoiceTalkModes.OpenMic }, new[] { "Push to talk", "Open microphone" }, talkModeIndex, OnTalkModeChanged, fieldBounds.BelowCopy(0, 92), "TalkMode")
-                .AddStaticText("ptt key", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 138))
+                .AddDynamicText("", CairoFont.WhiteSmallText(), fieldBounds.BelowCopy(0, 42), "leveltext")
+                .AddStaticText("Talk Mode", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 92))
+                .AddDropDown(new[] { VoiceTalkModes.PushToTalk, VoiceTalkModes.OpenMic }, new[] { "Push To Talk", "Open Microphone" }, talkModeIndex, OnTalkModeChanged, fieldBounds.BelowCopy(0, 92), "TalkMode")
+                .AddStaticText("Push To Talk Key", CairoFont.WhiteSmallText(), labelBounds.BelowCopy(0, 138))
                 .AddSmallButton(KeyDisplay(), OnCapturePushToTalk, fieldBounds.BelowCopy(0, 138).WithFixedWidth(180), EnumButtonStyle.Normal, "pttkey")
-                .AddDynamicText("", CairoFont.WhiteSmallText(), fieldBounds.BelowCopy(190, 142).WithFixedWidth(150), "capture")
-                .AddSmallButton("Continue with voice", OnContinueWithVoice, buttonRow.FlatCopy().WithFixedWidth(210).WithAlignment(EnumDialogArea.LeftFixed), EnumButtonStyle.Normal)
-                .AddSmallButton("Disable voice here", OnDisableVoice, buttonRow.FlatCopy().WithFixedWidth(210).WithAlignment(EnumDialogArea.RightFixed), EnumButtonStyle.Normal)
+                .AddDynamicText("", CairoFont.WhiteSmallText(), fieldBounds.BelowCopy(198, 142).WithFixedWidth(178), "capture")
+                .AddSmallButton("Continue With Voice", OnContinueWithVoice, buttonRow.FlatCopy().WithFixedWidth(220).WithAlignment(EnumDialogArea.LeftFixed), EnumButtonStyle.Normal)
+                .AddSmallButton("Disable Voice Here", OnDisableVoice, buttonRow.FlatCopy().WithFixedWidth(220).WithAlignment(EnumDialogArea.RightFixed), EnumButtonStyle.Normal)
             .EndChildElements()
             .Compose();
 
@@ -96,28 +96,16 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
 
     public override void OnKeyDown(KeyEvent args)
     {
-        if (capturingPushToTalk)
-        {
-            args.Handled = true;
-            capturingPushToTalk = false;
-            if (args.KeyCode != (int)GlKeys.Escape)
-            {
-                setup.PushToTalkKeyCode = args.KeyCode;
-                setup.PushToTalkCtrl = args.CtrlPressed;
-                setup.PushToTalkAlt = args.AltPressed;
-                setup.PushToTalkShift = args.ShiftPressed;
-                setup.FillDefaults();
-                client.ApplyPushToTalkPreview(setup);
-                client.ApplySetupPreview(setup);
-            }
-
-            GuiElementTextButton button = SingleComposer.GetButton("pttkey");
-            if (button != null) button.Text = KeyDisplay();
-            UpdateCaptureText();
-            return;
-        }
+        if (TryCapturePushToTalkKey(args)) return;
 
         base.OnKeyDown(args);
+    }
+
+    public override void OnKeyPress(KeyEvent args)
+    {
+        if (TryCapturePushToTalkKey(args)) return;
+
+        base.OnKeyPress(args);
     }
 
     public void UpdateInputLevel(float level, string status)
@@ -168,18 +156,47 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
         return true;
     }
 
+    private bool TryCapturePushToTalkKey(KeyEvent args)
+    {
+        if (!capturingPushToTalk) return false;
+
+        args.Handled = true;
+        capturingPushToTalk = false;
+        if (args.KeyCode != (int)GlKeys.Escape)
+        {
+            setup.PushToTalkKeyCode = args.KeyCode;
+            setup.PushToTalkCtrl = args.CtrlPressed;
+            setup.PushToTalkAlt = args.AltPressed;
+            setup.PushToTalkShift = args.ShiftPressed;
+            setup.FillDefaults();
+            client.ApplyPushToTalkPreview(setup);
+            client.ApplySetupPreview(setup);
+        }
+
+        UpdatePushToTalkButton();
+        UpdateCaptureText();
+        return true;
+    }
+
+    private void UpdatePushToTalkButton()
+    {
+        GuiElementTextButton button = SingleComposer.GetButton("pttkey");
+        if (button == null) return;
+
+        button.Text = KeyDisplay();
+    }
+
     private string StatusText(string appText)
     {
         return "This server uses Discord proximity voice.\n" +
-            "Discord app id: " + appText + "\n" +
-            "Voice session: " + session.ServerVoiceId + "\n" +
+            "Discord App ID: " + appText + "\n" +
+            "Voice Session: " + session.ServerVoiceId + "\n" +
             "Backend: " + backendStatus;
     }
 
     private string KeyDisplay()
     {
-        HotKey hotKey = capi.Input.GetHotKeyByCode(VoiceClient.PushToTalkHotkeyCode);
-        KeyCombination keyCombination = hotKey?.CurrentMapping ?? new KeyCombination
+        KeyCombination keyCombination = new KeyCombination
         {
             KeyCode = setup.PushToTalkKeyCode,
             Ctrl = setup.PushToTalkCtrl,
@@ -192,12 +209,12 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
 
     private void UpdateCaptureText()
     {
-        SingleComposer?.GetDynamicText("capture")?.SetNewText(capturingPushToTalk ? "press a key" : "");
+        SingleComposer?.GetDynamicText("capture")?.SetNewText(capturingPushToTalk ? "Press A Key" : "");
     }
 
     private void UpdateLevelText()
     {
-        SingleComposer?.GetDynamicText("leveltext")?.SetNewText(inputLevel > 0.03f ? "input detected" : "listening");
+        SingleComposer?.GetDynamicText("leveltext")?.SetNewText(inputLevel > 0.03f ? "Input Detected" : "Listening");
     }
 
     private void DrawInputLevel(Context ctx, ImageSurface surface, ElementBounds currentBounds)
