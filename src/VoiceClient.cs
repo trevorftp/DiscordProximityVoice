@@ -49,7 +49,7 @@ internal sealed class VoiceClient : IDisposable
     {
         api.Input.RegisterHotKey(
             PushToTalkHotkeyCode,
-            "Discord voice push to talk",
+            "Voice push to talk",
             (GlKeys)DiscordVoiceClientServerSetup.DefaultPushToTalkKeyCode,
             HotkeyType.CharacterControls
         );

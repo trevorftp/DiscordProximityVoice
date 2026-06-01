@@ -14,7 +14,7 @@ This is not ready for public servers yet. It is here so the flow can be tested a
 - Vintage Story sends proximity snapshots to each client.
 - The client updates Discord participant volumes from the in-game distances.
 - Players can open setup with `/voiceconfig` or `/vc`.
-- Push to talk is registered in the Vintage Story controls menu as `Discord voice push to talk`.
+- Push to talk is registered in the Vintage Story controls menu as `Voice push to talk`.
 
 ## Native files
 
