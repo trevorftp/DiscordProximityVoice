@@ -55,7 +55,7 @@ internal sealed class VoiceInputDevice
 
 internal sealed class DiscordVoiceClientServerSetup
 {
-    public const int DefaultPushToTalkKeyCode = (int)GlKeys.H;
+    public const int DefaultPushToTalkKeyCode = (int)GlKeys.V;
     public const int CurrentSetupVersion = 2;
 
     public int SetupVersion = 0;

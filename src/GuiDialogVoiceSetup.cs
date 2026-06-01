@@ -71,7 +71,7 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
         SingleComposer = capi.Gui
             .CreateCompo("dpvoice-setup", ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle))
             .AddShadedDialogBG(bgBounds, true)
-            .AddDialogTitleBar("Discord Voice Setup", () => { })
+            .AddDialogTitleBar("Voice Setup", () => { })
             .BeginChildElements(bgBounds)
                 .AddDynamicText(StatusText(appText), CairoFont.WhiteSmallText(), statusBounds, "status")
                 .AddStaticText("Microphone", CairoFont.WhiteSmallText(), labelBounds)
@@ -161,6 +161,8 @@ internal sealed class GuiDialogVoiceSetup : GuiDialog
         if (!capturingPushToTalk) return false;
 
         args.Handled = true;
+        if (args.KeyCode <= 0) return true;
+
         capturingPushToTalk = false;
         if (args.KeyCode != (int)GlKeys.Escape)
         {
