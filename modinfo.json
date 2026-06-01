@@ -1,0 +1,11 @@
+{
+  "type": "code",
+  "modid": "discordproximityvoice",
+  "name": "Discord Proximity Voice",
+  "authors": [ "imtsubaki (tsu)" ],
+  "description": "Proof of concept for Discord-hosted proximity voice",
+  "version": "0.0.1",
+  "side": "universal",
+  "requiredOnClient": true,
+  "requiredOnServer": true
+}

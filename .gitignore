@@ -1,0 +1,14 @@
+bin/
+obj/
+
+native/build/
+native/_sdk/
+
+sdk/*
+!sdk/License-Notices.txt
+
+*.user
+*.suo
+*.nupkg
+*.zip
+*.log

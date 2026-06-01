@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>DiscordProximityVoice</AssemblyName>
+    <TargetFramework>$(FrameworkVersion)</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>disable</Nullable>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <ModOut>$(MSBuildThisFileDirectory)bin\Mod\DiscordProximityVoice\</ModOut>
+    <OutputPath>$(ModOut)</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="2.4.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>$(VSInstall)\VintagestoryAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VintagestoryLib">
+      <HintPath>$(VSInstall)\VintagestoryLib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(VSInstall)\Lib\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="cairo-sharp">
+      <HintPath>$(VSInstall)\Lib\cairo-sharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="modinfo.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="native\*.dll" CopyToOutputDirectory="PreserveNewest">
+      <Link>native\%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+
+  <Target Name="RemoveBaseGameAssembliesFromModOutput" AfterTargets="Build">
+    <ItemGroup>
+      <_BaseGameOutput Include="$(TargetDir)cairo-sharp.*" />
+      <_BaseGameOutput Include="$(TargetDir)VintagestoryAPI.*" />
+      <_BaseGameOutput Include="$(TargetDir)VintagestoryLib.*" />
+      <_BaseGameOutput Include="$(TargetDir)0Harmony.*" />
+      <_BaseGameOutput Include="$(TargetDir)Newtonsoft.Json.*" />
+    </ItemGroup>
+    <Delete Files="@(_BaseGameOutput)" TreatErrorsAsWarnings="true" />
+  </Target>
+
+</Project>
