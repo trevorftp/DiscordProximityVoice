@@ -1,5 +1,9 @@
 # Discord Proximity Voice
 
+[![Discord](https://img.shields.io/badge/chat-on%20discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/pd24fawhsD)
+[![License](https://img.shields.io/badge/license-blue)](LICENSE)
+[![Support on Ko-fi](https://img.shields.io/badge/Support_on_Ko--fi-ff5f5f?logo=ko-fi&logoColor=white)](https://ko-fi.com/imtsubaki)
+
 Proof of concept for Discord-hosted proximity voice in Vintage Story.
 
 The server creates a Discord provisional access token for each player. The client uses that token to connect to the Discord Social SDK lobby voice call, while the mod keeps proximity state in Vintage Story and sends volume updates to the native bridge.
